@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prism Studio — Graphic Design Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#120E1E;
+    --void-2:#1A1330;
+    --card:#211A38;
+    --magenta:#FF2E7E;
+    --amber:#FFB627;
+    --cyan:#2EE6D6;
+    --cloud:#F7F4FF;
+    --muted:#B4A9D6;
+    --line: rgba(247,244,255,0.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--void);
+    color:var(--cloud);
+    font-family:'Inter', sans-serif;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-0.02em; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:0; height:0;
+    border-left:7px solid transparent;
+    border-right:7px solid transparent;
+    border-bottom:11px solid var(--magenta);
+    display:inline-block;
+  }
+  a{color:inherit; text-decoration:none;}
+  img,svg{display:block; max-width:100%;}
+  section{padding:110px 6vw;}
+  .wrap{max-width:1180px; margin:0 auto;}
+
+  /* NAV */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 6vw;
+    transition: background 0.3s ease, padding 0.3s ease, backdrop-filter 0.3s ease;
+  }
+  nav.scrolled{
+    background:rgba(18,14,30,0.85);
+    backdrop-filter:blur(10px);
+    padding:14px 6vw;
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:1.3rem;
+    display:flex; align-items:center; gap:9px;
+  }
+  .logo .mark{
+    width:16px; height:16px;
+    background:conic-gradient(from 200deg, var(--magenta), var(--amber), var(--cyan), var(--magenta));
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    display:inline-block;
+  }
+  .nav-links{display:flex; gap:34px; font-size:0.92rem; font-weight:500;}
+  .nav-links a{opacity:0.85; transition:opacity 0.2s;}
+  .nav-links a:hover, .nav-links a:focus-visible{opacity:1; color:var(--amber);}
+  .nav-cta{
+    background:var(--magenta); color:var(--void); font-weight:600;
+    padding:10px 20px; border-radius:100px; font-size:0.88rem;
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .nav-cta:hover, .nav-cta:focus-visible{transform:translateY(-2px); box-shadow:0 8px 24px rgba(255,46,126,0.35);}
+  .menu-btn{display:none; background:none; border:none; color:var(--cloud); font-size:1.6rem; cursor:pointer;}
+
+  /* HERO */
+  .hero{
+    min-height:100vh;
+    display:flex; align-items:center;
+    padding-top:140px;
+    position:relative;
+  }
+  .hero .wrap{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:60px;
+    align-items:center;
+  }
+  .hero h1{
+    font-size:clamp(2.6rem, 5vw, 4.4rem);
+    line-height:1.03;
+  }
+  .hero h1 .accent{
+    background:linear-gradient(92deg, var(--magenta), var(--amber) 55%, var(--cyan));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .hero p.lead{
+    margin-top:22px;
+    font-size:1.1rem;
+    color:var(--muted);
+    max-width:46ch;
+  }
+  .hero-ctas{display:flex; gap:16px; margin-top:36px; flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--cloud); color:var(--void); font-weight:600;
+    padding:15px 28px; border-radius:100px; font-size:0.95rem;
+    transition:transform 0.2s ease;
+  }
+  .btn-primary:hover, .btn-primary:focus-visible{transform:translateY(-2px);}
+  .btn-ghost{
+    border:1px solid var(--line); padding:15px 28px; border-radius:100px;
+    font-size:0.95rem; font-weight:500; transition:border-color 0.2s ease, background 0.2s ease;
+  }
+  .btn-ghost:hover, .btn-ghost:focus-visible{border-color:var(--cyan); background:rgba(46,230,214,0.06);}
+
+  .prism-art{ position:relative; display:flex; justify-content:center; }
+  .prism-art svg{ width:100%; max-width:420px; }
+  @media (prefers-reduced-motion: no-preference){
+    .beam{ animation: shimmer 5s ease-in-out infinite; }
+    @keyframes shimmer{
+      0%,100%{ opacity:0.85; }
+      50%{ opacity:1; }
+    }
+    .fanband{ animation: pulseband 6s ease-in-out infinite; }
+    @keyframes pulseband{
+      0%,100%{ transform:scaleY(1); }
+      50%{ transform:scaleY(1.06); }
+    }
+  }
+
+  /* ABOUT */
+  .about .wrap{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:70px;
+    align-items:start;
+  }
+  .about h2{ font-size:clamp(2rem, 3.4vw, 2.8rem); line-height:1.12; }
+  .about p{ color:var(--muted); margin-top:20px; font-size:1.02rem; max-width:52ch;}
+  .stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:20px;}
+  .stat{ border-top:1px solid var(--line); padding-top:16px; }
+  .stat .num{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:2.1rem; }
+  .stat .num.c1{color:var(--magenta);} .stat .num.c2{color:var(--amber);} .stat .num.c3{color:var(--cyan);}
+  .stat .label{ font-size:0.85rem; color:var(--muted); margin-top:4px;}
+
+  /* PORTFOLIO */
+  .portfolio{ background:var(--void-2); }
+  .section-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:20px; margin-bottom:48px; flex-wrap:wrap;}
+  .section-head h2{ font-size:clamp(2rem,3.4vw,2.6rem); }
+  .bento{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    grid-auto-rows:190px;
+    gap:18px;
+  }
+  .card{
+    border-radius:18px;
+    padding:22px;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    position:relative;
+    overflow:hidden;
+    transition:transform 0.35s ease;
+  }
+  .card:hover, .card:focus-visible{ transform:translateY(-6px); }
+  .card h3{ font-size:1.05rem; position:relative; z-index:2;}
+  .card .tag{ font-family:'JetBrains Mono', monospace; font-size:0.7rem; color:rgba(18,14,30,0.7); position:relative; z-index:2; margin-top:4px;}
+  .card::after{ content:""; position:absolute; inset:0; background:rgba(18,14,30,0.08); }
+  .c-a{ grid-column:span 2; grid-row:span 2; background:linear-gradient(135deg,var(--magenta),#ff7cb0); color:var(--void);}
+  .c-b{ grid-column:span 2; background:linear-gradient(135deg,var(--amber),#ffd98a); color:var(--void);}
+  .c-c{ grid-column:span 1; background:linear-gradient(135deg,var(--cyan),#8ffff2); color:var(--void);}
+  .c-d{ grid-column:span 1; background:var(--card); color:var(--cloud); border:1px solid var(--line);}
+  .c-e{ grid-column:span 2; background:linear-gradient(135deg,#8a5cff,var(--magenta)); color:var(--void);}
+  .c-f{ grid-column:span 2; grid-row:span 1; background:var(--card); color:var(--cloud); border:1px solid var(--line);}
+
+  /* REVIEWS */
+  .reviews{ overflow:hidden; }
+  .marquee-track{
+    display:flex; gap:20px;
+    width:max-content;
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .marquee-track{ animation:scroll 34s linear infinite; }
+    .reviews:hover .marquee-track{ animation-play-state:paused; }
+  }
+  @keyframes scroll{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
+  .review-card{
+    flex:0 0 340px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:28px;
+  }
+  .stars{ color:var(--amber); letter-spacing:3px; margin-bottom:14px; font-size:0.95rem;}
+  .review-card p.quote{ font-size:1rem; color:var(--cloud); }
+  .review-who{ margin-top:18px; display:flex; align-items:center; gap:12px;}
+  .avatar{ width:38px; height:38px; border-radius:50%; flex-shrink:0;}
+  .review-who .name{ font-weight:600; font-size:0.9rem;}
+  .review-who .co{ font-size:0.8rem; color:var(--muted);}
+
+  /* CONTACT / ORDER */
+  .contact .wrap{ display:grid; grid-template-columns:0.9fr 1.1fr; gap:70px;}
+  .contact h2{ font-size:clamp(2rem,3.4vw,2.8rem); }
+  .contact p.lead{ color:var(--muted); margin-top:18px; max-width:40ch;}
+  .contact-info{ margin-top:36px; display:flex; flex-direction:column; gap:14px; font-size:0.95rem;}
+  .contact-info a:hover{ color:var(--amber); }
+  form{ background:var(--card); border:1px solid var(--line); border-radius:20px; padding:36px; }
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;}
+  .field{ display:flex; flex-direction:column; gap:8px; margin-bottom:16px;}
+  .field label{ font-size:0.82rem; color:var(--muted); }
+  .field input, .field select, .field textarea{
+    background:var(--void-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    color:var(--cloud);
+    font-family:'Inter', sans-serif;
+    font-size:0.95rem;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:none; border-color:var(--cyan); box-shadow:0 0 0 3px rgba(46,230,214,0.15);
+  }
+  .field textarea{ resize:vertical; min-height:100px; }
+  .submit-btn{
+    width:100%; background:linear-gradient(92deg,var(--magenta),var(--amber));
+    color:var(--void); font-weight:700; border:none; border-radius:12px;
+    padding:16px; font-size:1rem; cursor:pointer; font-family:'Inter',sans-serif;
+    transition:transform 0.2s ease;
+  }
+  .submit-btn:hover, .submit-btn:focus-visible{ transform:translateY(-2px); }
+  .form-note{ font-size:0.82rem; color:var(--muted); margin-top:14px; text-align:center; }
+  .success-msg{
+    display:none; background:rgba(46,230,214,0.1); border:1px solid var(--cyan);
+    color:var(--cyan); padding:14px 16px; border-radius:10px; font-size:0.9rem; margin-bottom:16px;
+  }
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:50px 6vw;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;
+  }
+  footer .foot-tag{ color:var(--muted); font-size:0.88rem; }
+  footer .foot-links{ display:flex; gap:24px; font-size:0.88rem; }
+  footer .foot-links a:hover{ color:var(--amber); }
+
+  @media (max-width: 880px){
+    .nav-links, .nav-cta{ display:none; }
+    .menu-btn{ display:block; }
+    .hero .wrap, .about .wrap, .contact .wrap{ grid-template-columns:1fr; }
+    .prism-art{ order:-1; }
+    .bento{ grid-template-columns:repeat(2,1fr); grid-auto-rows:160px; }
+    .c-a{ grid-column:span 2; }
+    .c-e{ grid-column:span 2; }
+    section{ padding:80px 6vw; }
+    .form-row{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="logo"><span class="mark"></span>Prism Studio</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#work">Work</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a href="#contact" class="nav-cta">Order a project</a>
+  <button class="menu-btn" aria-label="Menu">☰</button>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Graphic Design Studio</div>
+      <h1>We refract your brand into <span class="accent">color.</span></h1>
+      <p class="lead">Prism Studio turns flat ideas into identities that hold the room — branding, packaging, and campaign design, built to catch the light from every angle.</p>
+      <div class="hero-ctas">
+        <a href="#contact" class="btn-primary">Start a project</a>
+        <a href="#work" class="btn-ghost">See our work</a>
+      </div>
+    </div>
+    <div class="prism-art" aria-hidden="true">
+      <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <line x1="10" y1="200" x2="150" y2="200" stroke="#F7F4FF" stroke-width="4" class="beam"/>
+        <polygon points="150,120 260,200 150,280" fill="#211A38" stroke="#F7F4FF" stroke-width="3"/>
+        <g>
+          <rect x="260" y="140" width="130" height="14" fill="#FF2E7E" class="fanband" style="transform-origin:260px 147px"/>
+          <rect x="260" y="170" width="150" height="14" fill="#FFB627" class="fanband" style="transform-origin:260px 177px"/>
+          <rect x="260" y="200" width="170" height="14" fill="#2EE6D6" class="fanband" style="transform-origin:260px 207px"/>
+          <rect x="260" y="230" width="150" height="14" fill="#8A5CFF" class="fanband" style="transform-origin:260px 237px"/>
+          <rect x="260" y="260" width="130" height="14" fill="#FF2E7E" class="fanband" style="transform-origin:260px 267px"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Who we are</div>
+      <h2>Design is just light, bent on purpose.</h2>
+    </div>
+    <div>
+      <p>Founded by a small team of brand and packaging designers, Prism Studio treats color as structure, not decoration. Every project starts with the one true angle a brand can own, then we bend everything — type, palette, motion — around it.</p>
+      <div class="stats">
+        <div class="stat"><div class="num c1">120+</div><div class="label">Projects shipped</div></div>
+        <div class="stat"><div class="num c2">40+</div><div class="label">Industries served</div></div>
+        <div class="stat"><div class="num c3">9 yrs</div><div class="label">Studio running</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="portfolio" id="work">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Selected work</h2>
+      <div class="eyebrow" style="margin-bottom:0;">Branding · Packaging · Print · Digital</div>
+    </div>
+    <div class="bento">
+      <div class="card c-a"><h3>Nova Coffee</h3><div class="tag">Full rebrand</div></div>
+      <div class="card c-b"><h3>Aster Records</h3><div class="tag">Album art</div></div>
+      <div class="card c-c"><h3>Vela Fitness</h3><div class="tag">App identity</div></div>
+      <div class="card c-d"><h3>Kite &amp; Co</h3><div class="tag">Packaging</div></div>
+      <div class="card c-e"><h3>Lumen Festival</h3><div class="tag">Poster series</div></div>
+      <div class="card c-f"><h3>Orbit Skateboards</h3><div class="tag">Brand system</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="reviews" id="reviews">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>What clients say</h2>
+    </div>
+  </div>
+  <div class="marquee-track">
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="quote">Prism didn't just make us a logo — they gave us a whole color language we still use today.</p>
+      <div class="review-who">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--magenta),var(--amber));"></div>
+        <div><div class="name">Mira Chen</div><div class="co">Nova Coffee</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="quote">They understood the brief better than we did, and pushed back where it mattered.</p>
+      <div class="review-who">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--cyan),#8a5cff);"></div>
+        <div><div class="name">Dev Patel</div><div class="co">Aster Records</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="quote">Every deliverable felt considered down to the kerning. Rare in this price range.</p>
+      <div class="review-who">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--amber),var(--magenta));"></div>
+        <div><div class="name">Talia Brooks</div><div class="co">Vela Fitness</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="quote">Fast, sharp, and completely fearless with color. Exactly what our brand needed.</p>
+      <div class="review-who">
+        <div class="avatar" style="background:linear-gradient(135deg,#8a5cff,var(--cyan));"></div>
+        <div><div class="name">Sam Okafor</div><div class="co">Kite &amp; Co</div></div>
+      </div>
+    </div>
+    <!-- duplicate set for seamless marquee loop -->
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="quote">Prism didn't just make us a logo — they gave us a whole color language we still use today.</p>
+      <div class="review-who">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--magenta),var(--amber));"></div>
+        <div><div class="name">Mira Chen</div><div class="co">Nova Coffee</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="quote">They understood the brief better than we did, and pushed back where it mattered.</p>
+      <div class="review-who">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--cyan),#8a5cff);"></div>
+        <div><div class="name">Dev Patel</div><div class="co">Aster Records</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="quote">Every deliverable felt considered down to the kerning. Rare in this price range.</p>
+      <div class="review-who">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--amber),var(--magenta));"></div>
+        <div><div class="name">Talia Brooks</div><div class="co">Vela Fitness</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="quote">Fast, sharp, and completely fearless with color. Exactly what our brand needed.</p>
+      <div class="review-who">
+        <div class="avatar" style="background:linear-gradient(135deg,#8a5cff,var(--cyan));"></div>
+        <div><div class="name">Sam Okafor</div><div class="co">Kite &amp; Co</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Get in touch</div>
+      <h2>Tell us what you're building.</h2>
+      <p class="lead">Send over your project details and we'll reply within two business days with next steps and a quote.</p>
+      <div class="contact-info">
+        <a href="mailto:hello@prismstudio.example">hello@prismstudio.example</a>
+        <a href="tel:+10000000000">+1 (000) 000-0000</a>
+        <span style="color:var(--muted);">Mon–Fri, 9am–6pm</span>
+      </div>
+    </div>
+    <div>
+      <form id="order-form">
+        <div class="success-msg" id="success-msg">Thanks — your project brief has been received. We'll be in touch within two business days.</div>
+        <div class="form-row">
+          <div class="field">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="project-type">Project type</label>
+            <select id="project-type" name="project-type">
+              <option>Branding &amp; logo</option>
+              <option>Packaging</option>
+              <option>Web design</option>
+              <option>Print / poster</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="budget">Budget range</label>
+            <select id="budget" name="budget">
+              <option>Under $2,000</option>
+              <option>$2,000 – $5,000</option>
+              <option>$5,000 – $15,000</option>
+              <option>$15,000+</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="details">Project details</label>
+          <textarea id="details" name="details" placeholder="Tell us about your brand, timeline, and what you need designed."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Send project brief</button>
+        <div class="form-note">No payment required to submit — we'll follow up with a quote first.</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-tag">Prism Studio — bending light into brands since 2016.</div>
+  <div class="foot-links">
+    <a href="#work">Work</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  const form = document.getElementById('order-form');
+  const successMsg = document.getElementById('success-msg');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    successMsg.style.display = 'block';
+    form.reset();
+    successMsg.scrollIntoView({behavior:'smooth', block:'nearest'});
+  });
+</script>
+
+</body>
+</html>
