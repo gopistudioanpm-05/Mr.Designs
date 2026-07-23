@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Frame — Design Orders</title>
+<style>
+  :root{
+    --ink:#211f1a;
+    --paper:#f7f4ec;
+    --card:#ffffff;
+    --line:#e4ded0;
+    --line-strong:#d4cbb4;
+    --rust:#b5502f;
+    --rust-dark:#8a3a20;
+    --moss:#5c6b47;
+    --moss-light:#eef1e6;
+    --gold:#c69a4e;
+    --muted:#8a8474;
+    --danger:#b3392f;
+    --radius:10px;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  [data-mode="dark"]{
+    --ink:#f0ece0;
+    --paper:#181614;
+    --card:#211f1c;
+    --line:#3a362f;
+    --line-strong:#4d473c;
+    --rust:#e07a52;
+    --rust-dark:#c96540;
+    --moss:#9db07f;
+    --moss-light:#26291f;
+    --gold:#d9b46a;
+    --muted:#a39b87;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:var(--font-display); font-weight:600; margin:0; letter-spacing:-0.01em;}
+  a{color:inherit;}
+  button{font-family:var(--font-body); cursor:pointer;}
+  input,select,textarea{font-family:var(--font-body);}
+
+  .app{max-width:1180px; margin:0 auto; padding:0 24px 80px;}
+
+  /* ===== Header ===== */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 0 18px; border-bottom:1px solid var(--line);
+    margin-bottom:28px;
+    position:sticky; top:0; background:var(--paper); z-index:40;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{
+    width:38px; height:38px; border-radius:8px; background:var(--rust);
+    display:flex; align-items:center; justify-content:center; color:#fdf8ef; flex-shrink:0;
+  }
+  .brand-mark svg{width:20px; height:20px;}
+  .brand-text .k{font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:1px;}
+  .brand-text .n{font-size:19px; font-weight:600;}
+
+  .nav{display:flex; gap:4px; align-items:center; flex-wrap:wrap;}
+  .nav button{
+    border:none; background:transparent; color:var(--muted);
+    font-size:13.5px; font-weight:500; padding:9px 14px; border-radius:8px;
+    display:flex; align-items:center; gap:6px; transition:.15s;
+  }
+  .nav button:hover{background:var(--card); color:var(--ink);}
+  .nav button.active{background:var(--ink); color:var(--paper);}
+  .nav .cart-btn{position:relative;}
+  .cart-badge{
+    position:absolute; top:2px; right:6px; background:var(--rust); color:#fff;
+    font-size:10px; font-weight:700; min-width:16px; height:16px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center; padding:0 4px;
+  }
+  .theme-toggle{
+    border:1px solid var(--line-strong); background:var(--card); border-radius:8px;
+    width:34px; height:34px; display:flex; align-items:center; justify-content:center; margin-left:8px;
+    color:var(--ink);
+  }
+
+  .view{display:none;}
+  .view.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ===== shared bits ===== */
+  .section-head{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px; gap:12px; flex-wrap:wrap;}
+  .eyebrow{font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--rust); font-weight:700; margin-bottom:6px; display:block;}
+  .section-head h2{font-size:26px;}
+  .sub{color:var(--muted); font-size:13.5px; margin-top:4px;}
+
+  .btn{
+    border:1px solid var(--line-strong); background:var(--card); color:var(--ink);
+    padding:10px 18px; border-radius:8px; font-size:13.5px; font-weight:600;
+    display:inline-flex; align-items:center; gap:7px; transition:.15s;
+  }
+  .btn:hover{border-color:var(--ink);}
+  .btn-primary{background:var(--rust); border-color:var(--rust); color:#fdf8ef;}
+  .btn-primary:hover{background:var(--rust-dark); border-color:var(--rust-dark);}
+  .btn-danger{color:var(--danger); border-color:var(--danger);}
+  .btn-danger:hover{background:var(--danger); color:#fff;}
+  .btn-sm{padding:7px 12px; font-size:12.5px;}
+  .btn-block{width:100%; justify-content:center;}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+
+  .icon{width:16px; height:16px; flex-shrink:0;}
+
+  /* filter chips */
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;}
+  .chip{
+    border:1px solid var(--line-strong); background:var(--card); padding:7px 15px;
+    border-radius:20px; font-size:12.5px; font-weight:600; color:var(--muted);
+  }
+  .chip.active{background:var(--moss); border-color:var(--moss); color:#fdf8ef;}
+
+  /* ===== gallery grid ===== */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:18px;}
+  .dcard{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden;
+    transition:.18s; display:flex; flex-direction:column;
+  }
+  .dcard:hover{border-color:var(--line-strong); transform:translateY(-2px); box-shadow:0 8px 22px rgba(0,0,0,.06);}
+  .dcard .thumb{
+    aspect-ratio:4/3; background:var(--moss-light); position:relative; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dcard .thumb img{width:100%; height:100%; object-fit:cover;}
+  .dcard .thumb .placeholder{color:var(--muted);}
+  .cat-tag{
+    position:absolute; top:9px; left:9px; background:rgba(33,31,26,.78); color:#fdf8ef;
+    font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    padding:4px 9px; border-radius:20px;
+  }
+  .dcard .body{padding:13px 14px 14px; display:flex; flex-direction:column; gap:6px; flex:1;}
+  .dcard .title{font-family:var(--font-display); font-size:16px; font-weight:600;}
+  .dcard .desc{font-size:12.5px; color:var(--muted); line-height:1.4; min-height:32px;}
+  .dcard .meta{display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:8px;}
+  .price{font-weight:700; font-size:15.5px; color:var(--rust);}
+  .stars{font-size:11.5px; color:var(--gold); display:flex; align-items:center; gap:3px;}
+  .dcard .actions{display:flex; gap:7px; padding:0 14px 14px;}
+  .dcard .actions .btn{flex:1; justify-content:center;}
+
+  .icon-btn{
+    width:32px; height:32px; border-radius:7px; border:1px solid var(--line-strong);
+    background:var(--card); display:flex; align-items:center; justify-content:center; color:var(--ink);
+  }
+  .icon-btn:hover{border-color:var(--danger); color:var(--danger);}
+
+  /* ===== modal ===== */
+  .overlay{
+    display:none; position:fixed; inset:0; background:rgba(20,18,14,.55); z-index:100;
+    align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--card); border-radius:14px; width:100%; max-width:560px;
+    padding:26px; border:1px solid var(--line); animation:pop .18s ease;
+  }
+  @keyframes pop{from{opacity:0; transform:scale(.97);} to{opacity:1; transform:scale(1);}}
+  .modal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;}
+  .modal-head h3{font-size:19px;}
+  .modal-close{width:30px; height:30px; border-radius:7px; border:none; background:var(--moss-light); display:flex; align-items:center; justify-content:center; color:var(--ink);}
+
+  .field{margin-bottom:15px;}
+  .field label{display:block; font-size:12px; font-weight:700; margin-bottom:6px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;}
+  .field input, .field select, .field textarea{
+    width:100%; border:1px solid var(--line-strong); background:var(--paper); color:var(--ink);
+    padding:10px 12px; border-radius:8px; font-size:14px;
+  }
+  .field textarea{resize:vertical; min-height:70px;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+
+  .upload-zone{
+    border:1.5px dashed var(--line-strong); border-radius:10px; padding:20px;
+    text-align:center; cursor:pointer; background:var(--paper); transition:.15s;
+  }
+  .upload-zone:hover{border-color:var(--rust);}
+  .upload-zone .icon{width:26px; height:26px; margin:0 auto 8px; color:var(--muted);}
+  .upload-preview{width:100%; max-height:200px; object-fit:contain; border-radius:8px; margin-top:10px; background:var(--moss-light);}
+
+  /* ===== reviews / discuss ===== */
+  .rv-item{border-bottom:1px solid var(--line); padding:14px 0;}
+  .rv-item:last-child{border-bottom:none;}
+  .rv-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;}
+  .rv-name{font-weight:600; font-size:13.5px;}
+  .rv-date{font-size:11.5px; color:var(--muted);}
+  .rv-text{font-size:13.5px; color:var(--ink); line-height:1.5;}
+  .rv-stars{color:var(--gold); font-size:12px; margin-bottom:3px;}
+
+  .avatar{
+    width:30px; height:30px; border-radius:50%; background:var(--moss); color:#fdf8ef;
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;
+  }
+
+  /* ===== cart ===== */
+  .cart-row{
+    display:flex; gap:14px; align-items:center; padding:14px 0; border-bottom:1px solid var(--line);
+  }
+  .cart-thumb{width:64px; height:64px; border-radius:8px; background:var(--moss-light); flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center;}
+  .cart-thumb img{width:100%; height:100%; object-fit:cover;}
+  .cart-info{flex:1; min-width:0;}
+  .cart-info .t{font-weight:600; font-size:14px;}
+  .cart-info .c{font-size:12px; color:var(--muted);}
+  .qty-ctrl{display:flex; align-items:center; gap:8px; border:1px solid var(--line-strong); border-radius:8px; padding:3px;}
+  .qty-ctrl button{width:24px; height:24px; border:none; background:transparent; font-size:15px; border-radius:5px; color:var(--ink);}
+  .qty-ctrl button:hover{background:var(--moss-light);}
+  .qty-ctrl span{min-width:18px; text-align:center; font-size:13px; font-weight:600;}
+
+  .summary-card{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px;
+  }
+  .summary-row{display:flex; justify-content:space-between; font-size:13.5px; padding:6px 0; color:var(--muted);}
+  .summary-row.total{border-top:1px solid var(--line); margin-top:8px; padding-top:12px; font-size:17px; font-weight:700; color:var(--ink);}
+
+  .empty-state{text-align:center; padding:60px 20px; color:var(--muted);}
+  .empty-state .icon{width:42px; height:42px; margin:0 auto 14px; opacity:.5;}
+  .empty-state h3{color:var(--ink); font-size:17px; margin-bottom:6px;}
+  .empty-state p{font-size:13.5px; max-width:320px; margin:0 auto;}
+
+  /* ===== payment page ===== */
+  .pay-grid{display:grid; grid-template-columns:1.2fr 1fr; gap:28px;}
+  @media (max-width:760px){.pay-grid{grid-template-columns:1fr;}}
+  .qr-box{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:26px;
+    text-align:center;
+  }
+  .qr-code{
+    width:190px; height:190px; margin:0 auto 14px; border-radius:10px; border:1px solid var(--line);
+    background:#fff; padding:10px;
+  }
+  .qr-code svg{width:100%; height:100%;}
+  .pay-method{
+    display:flex; align-items:center; gap:10px; border:1px solid var(--line-strong); border-radius:9px;
+    padding:12px 14px; margin-bottom:10px; cursor:pointer; font-size:13.5px; font-weight:600;
+  }
+  .pay-method.selected{border-color:var(--rust); background:rgba(181,80,47,.06);}
+  .pay-method input{accent-color:var(--rust);}
+
+  /* ===== bill ===== */
+  .bill{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:30px;
+    max-width:480px; margin:0 auto; font-family:var(--font-mono); font-size:12.5px;
+  }
+  .bill h2{font-family:var(--font-display); text-align:center; font-size:20px; margin-bottom:2px;}
+  .bill .center{text-align:center;}
+  .bill .divider{border-top:1px dashed var(--line-strong); margin:14px 0;}
+  .bill-row{display:flex; justify-content:space-between; margin:4px 0;}
+  .bill table{width:100%; border-collapse:collapse; margin:12px 0;}
+  .bill th{text-align:left; font-size:10.5px; text-transform:uppercase; color:var(--muted); padding-bottom:6px; border-bottom:1px solid var(--line);}
+  .bill td{padding:6px 0; border-bottom:1px solid var(--line); font-size:12px;}
+  .bill td:last-child, .bill th:last-child{text-align:right;}
+  @media print{
+    body *{visibility:hidden;}
+    .bill, .bill *{visibility:visible;}
+    .bill{position:absolute; top:0; left:0; border:none; box-shadow:none;}
+  }
+
+  /* ===== dashboard ===== */
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px;}
+  .stat-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px;}
+  .stat-card .k{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin-bottom:6px;}
+  .stat-card .v{font-size:26px; font-weight:700; font-family:var(--font-display);}
+  .stat-card .v.rust{color:var(--rust);}
+  .stat-card .v.moss{color:var(--moss);}
+
+  .table-wrap{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+  table.data{width:100%; border-collapse:collapse; font-size:13px;}
+  table.data th{
+    text-align:left; padding:12px 16px; background:var(--moss-light); font-size:11px;
+    text-transform:uppercase; letter-spacing:.04em; color:var(--muted); font-weight:700;
+  }
+  table.data td{padding:12px 16px; border-top:1px solid var(--line);}
+  table.data tr:hover td{background:var(--paper);}
+  .status-pill{
+    font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; text-transform:uppercase;
+  }
+  .status-pill.paid{background:var(--moss-light); color:var(--moss);}
+  .status-pill.pending{background:rgba(198,154,78,.15); color:var(--gold);}
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(10px);
+    background:var(--ink); color:var(--paper); padding:12px 22px; border-radius:9px;
+    font-size:13.5px; font-weight:600; z-index:300; opacity:0; pointer-events:none; transition:.25s;
+    display:flex; align-items:center; gap:8px;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:640px){
+    .app{padding:0 14px 60px;}
+    .nav{width:100%; overflow-x:auto; -ms-overflow-style:none; scrollbar-width:none;}
+    .nav::-webkit-scrollbar{display:none;}
+    .topbar{flex-wrap:wrap; gap:10px; position:static;}
+    .field-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      </div>
+      <div class="brand-text">
+        <span class="k">Print &amp; frame studio</span>
+        <span class="n">Studio Frame</span>
+      </div>
+    </div>
+    <div class="nav">
+      <button data-view="gallery" class="active">Designs</button>
+      <button data-view="cart" class="cart-btn">Cart <span class="cart-badge" id="cartBadge" style="display:none">0</span></button>
+      <button data-view="payment">Checkout</button>
+      <button data-view="dashboard">Reports</button>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme" aria-label="Toggle dark mode">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== GALLERY VIEW ========== -->
+  <div class="view active" id="view-gallery">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Catalogue</span>
+        <h2>Custom designs</h2>
+        <p class="sub">Frames, photo frames, posters &amp; fully custom orders — add, edit or remove any piece.</p>
+      </div>
+      <button class="btn btn-primary" id="btnAddDesign">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        New design
+      </button>
+    </div>
+
+    <div class="chips" id="categoryChips"></div>
+    <div class="grid" id="designGrid"></div>
+  </div>
+
+  <!-- ========== CART VIEW ========== -->
+  <div class="view" id="view-cart">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Your selection</span>
+        <h2>Cart</h2>
+        <p class="sub" id="cartSub">Review items before checkout.</p>
+      </div>
+      <button class="btn btn-danger btn-sm" id="btnClearCart">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0-1 14a1 1 0 01-1 1H7a1 1 0 01-1-1L5 6"/></svg>
+        Clear cart
+      </button>
+    </div>
+    <div id="cartList"></div>
+  </div>
+
+  <!-- ========== PAYMENT VIEW ========== -->
+  <div class="view" id="view-payment">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Step 2 of 2</span>
+        <h2>Checkout &amp; payment</h2>
+        <p class="sub">Confirm customer details, scan to pay, then print the bill.</p>
+      </div>
+    </div>
+    <div id="paymentContent"></div>
+  </div>
+
+  <!-- ========== DASHBOARD VIEW ========== -->
+  <div class="view" id="view-dashboard">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Owner view</span>
+        <h2>Daily reports</h2>
+        <p class="sub">Orders, revenue and reviews at a glance.</p>
+      </div>
+      <button class="btn btn-sm" id="btnResetData">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Reset demo data
+      </button>
+    </div>
+
+    <div class="stat-grid" id="statGrid"></div>
+
+    <div class="section-head" style="margin-top:8px;">
+      <h3 style="font-family:var(--font-display); font-size:18px;">Today's orders</h3>
+    </div>
+    <div class="table-wrap" style="margin-bottom:28px;">
+      <table class="data" id="ordersTable"></table>
+    </div>
+
+    <div class="section-head">
+      <h3 style="font-family:var(--font-display); font-size:18px;">Recent reviews</h3>
+    </div>
+    <div class="table-wrap">
+      <div style="padding:6px 16px;" id="allReviewsList"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== Design detail / review+discuss modal ===== -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <h3 id="detailTitle">Design</h3>
+      <button class="modal-close" id="detailClose">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="detailBody"></div>
+  </div>
+</div>
+
+<!-- ===== Add/Edit design modal ===== -->
+<div class="overlay" id="formOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="formTitle">New design</h3>
+      <button class="modal-close" id="formClose">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="field">
+      <label>Design image</label>
+      <div class="upload-zone" id="uploadZone">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg>
+        <div style="font-size:12.5px; color:var(--muted);">Click to upload an image</div>
+        <img id="uploadPreview" class="upload-preview" style="display:none;">
+      </div>
+      <input type="file" id="fileInput" accept="image/*" style="display:none;">
+    </div>
+    <div class="field">
+      <label>Design name</label>
+      <input type="text" id="fName" placeholder="e.g. Walnut floater frame">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Category</label>
+        <select id="fCategory">
+          <option>Flex</option>
+          <option>Photo Frame</option>
+          <option>Poster Design</option>
+          <option>Custom Design</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Price (₹)</label>
+        <input type="number" id="fPrice" placeholder="1200" min="0">
+      </div>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="fDesc" placeholder="Short description of the design, size, material..."></textarea>
+    </div>
+    <button class="btn btn-primary btn-block" id="btnSaveDesign">Save design</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORE_KEY = 'sf_state_v1';
+  var state = {
+    designs: [],
+    cart: [],
+    orders: [],
+    reviews: [],
+    theme: 'light',
+    customer: { name:'', phone:'', email:'', notes:'' }
+  };
+
+  var SAMPLE_DESIGNS = [
+    {id:'d1', name:'Walnut floater frame', category:'Photo Frame', price:1450, desc:'Solid walnut floating frame, 12x16in, gallery finish.', img:''},
+    {id:'d2', name:'City skyline flex banner', category:'Flex', price:850, desc:'Outdoor flex print, 6x4ft, weatherproof vinyl.', img:''},
+    {id:'d3', name:'Minimal typography poster', category:'Poster Design', price:499, desc:'A2 matte poster, bold sans typography, 3 colourways.', img:''},
+    {id:'d4', name:'Wedding collage custom board', category:'Custom Design', price:2200, desc:'Fully custom photo collage board, any size, framed.', img:''},
+    {id:'d5', name:'Vintage brass edge frame', category:'Photo Frame', price:1100, desc:'Brass-edged frame for 8x10in prints, classic look.', img:''},
+    {id:'d6', name:'Shop opening flex board', category:'Flex', price:1600, desc:'Large format flex, 8x3ft, grommets included.', img:''}
+  ];
+  var SAMPLE_REVIEWS = [
+    {id:'r1', designId:'d1', name:'Priya S.', rating:5, text:'Beautiful finish, exactly what we discussed. Delivered on time.', date:daysAgo(1)},
+    {id:'r2', designId:'d2', name:'Arun K.', rating:4, text:'Good print quality, colours could be slightly brighter.', date:daysAgo(2)},
+    {id:'r3', designId:'d3', name:'Meera R.', rating:5, text:'Loved the layout options they showed before printing.', date:daysAgo(3)}
+  ];
+
+  function daysAgo(n){ var d=new Date(); d.setDate(d.getDate()-n); return d.toISOString(); }
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function fmt(n){ return '₹' + Number(n||0).toLocaleString('en-IN'); }
+  function fmtDate(iso){ var d=new Date(iso); return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+  function save(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        state = Object.assign(state, parsed);
+        return true;
+      }
+    }catch(e){}
+    return false;
+  }
+  function seed(){
+    state.designs = SAMPLE_DESIGNS.slice();
+    state.reviews = SAMPLE_REVIEWS.slice();
+    state.cart = [];
+    state.orders = [];
+    save();
+  }
+
+  if(!load() || !state.designs || state.designs.length===0){ seed(); }
+
+  // ---------- theme ----------
+  function applyTheme(){
+    document.documentElement.setAttribute('data-mode', state.theme);
+  }
+  document.getElementById('themeToggle').addEventListener('click', function(){
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(); save();
+  });
+  applyTheme();
+
+  // ---------- toast ----------
+  var toastTimer;
+  function toast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+
+  // ---------- nav ----------
+  var navButtons = document.querySelectorAll('.nav button[data-view]');
+  navButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){ showView(btn.getAttribute('data-view')); });
+  });
+  function showView(name){
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+    document.getElementById('view-'+name).classList.add('active');
+    navButtons.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-view')===name); });
+    if(name==='cart') renderCart();
+    if(name==='payment') renderPayment();
+    if(name==='dashboard') renderDashboard();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  // ================= GALLERY =================
+  var currentFilter = 'All';
+  var CATS = ['All','Flex','Photo Frame','Poster Design','Custom Design'];
+
+  function renderChips(){
+    var wrap = document.getElementById('categoryChips');
+    wrap.innerHTML = CATS.map(function(c){
+      return '<button class="chip'+(c===currentFilter?' active':'')+'" data-cat="'+esc(c)+'">'+esc(c)+'</button>';
+    }).join('');
+    wrap.querySelectorAll('.chip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        currentFilter = chip.getAttribute('data-cat');
+        renderChips(); renderGallery();
+      });
+    });
+  }
+
+  function avgRating(designId){
+    var rs = state.reviews.filter(function(r){ return r.designId===designId; });
+    if(rs.length===0) return null;
+    var sum = rs.reduce(function(a,r){ return a+r.rating; },0);
+    return {avg:(sum/rs.length).toFixed(1), count:rs.length};
+  }
+
+  function starString(n){
+    n = Math.round(n);
+    var s='';
+    for(var i=0;i<5;i++){ s += i<n ? '★' : '☆'; }
+    return s;
+  }
+
+  function renderGallery(){
+    var grid = document.getElementById('designGrid');
+    var list = state.designs.filter(function(d){ return currentFilter==='All' || d.category===currentFilter; });
+    if(list.length===0){
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">'+
+        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+        '<h3>No designs here yet</h3><p>Add a new design in this category to get started.</p></div>';
+      return;
+    }
+    grid.innerHTML = list.map(function(d){
+      var r = avgRating(d.id);
+      var thumb = d.img
+        ? '<img src="'+d.img+'" alt="'+esc(d.name)+'">'
+        : '<div class="placeholder"><svg class="icon" style="width:34px;height:34px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>';
+      return '<div class="dcard">'+
+        '<div class="thumb">'+thumb+'<span class="cat-tag">'+esc(d.category)+'</span></div>'+
+        '<div class="body">'+
+          '<div class="title">'+esc(d.name)+'</div>'+
+          '<div class="desc">'+esc(d.desc||'')+'</div>'+
+          '<div class="meta">'+
+            '<span class="price">'+fmt(d.price)+'</span>'+
+            (r ? '<span class="stars">★ '+r.avg+' <span style="color:var(--muted)">('+r.count+')</span></span>' : '<span class="stars" style="color:var(--muted)">No reviews</span>')+
+          '</div>'+
+        '</div>'+
+        '<div class="actions">'+
+          '<button class="btn btn-sm" data-view-detail="'+d.id+'">View &amp; review</button>'+
+          '<button class="btn btn-primary btn-sm" data-add-cart="'+d.id+'">Add to cart</button>'+
+          '<button class="icon-btn" data-edit="'+d.id+'" title="Edit"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>'+
+          '<button class="icon-btn" data-delete="'+d.id+'" title="Delete"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0-1 14a1 1 0 01-1 1H7a1 1 0 01-1-1L5 6"/></svg></button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+
+    grid.querySelectorAll('[data-view-detail]').forEach(function(el){
+      el.addEventListener('click', function(){ openDetail(el.getAttribute('data-view-detail')); });
+    });
+    grid.querySelectorAll('[data-add-cart]').forEach(function(el){
+      el.addEventListener('click', function(){ addToCart(el.getAttribute('data-add-cart')); });
+    });
+    grid.querySelectorAll('[data-edit]').forEach(function(el){
+      el.addEventListener('click', function(){ openForm(el.getAttribute('data-edit')); });
+    });
+    grid.querySelectorAll('[data-delete]').forEach(function(el){
+      el.addEventListener('click', function(){ deleteDesign(el.getAttribute('data-delete')); });
+    });
+  }
+
+  function deleteDesign(id){
+    var d = state.designs.find(function(x){ return x.id===id; });
+    if(!d) return;
+    if(!confirm('Delete "'+d.name+'"? This cannot be undone.')) return;
+    state.designs = state.designs.filter(function(x){ return x.id!==id; });
+    state.cart = state.cart.filter(function(x){ return x.designId!==id; });
+    save(); renderGallery(); updateCartBadge();
+    toast('Design deleted');
+  }
+
+  // ---------- add/edit form ----------
+  var formOverlay = document.getElementById('formOverlay');
+  var editingId = null;
+  var pendingImg = '';
+
+  document.getElementById('btnAddDesign').addEventListener('click', function(){ openForm(null); });
+  document.getElementById('formClose').addEventListener('click', closeForm);
+  formOverlay.addEventListener('click', function(e){ if(e.target===formOverlay) closeForm(); });
+
+  function openForm(id){
+    editingId = id;
+    pendingImg = '';
+    var titleEl = document.getElementById('formTitle');
+    if(id){
+      var d = state.designs.find(function(x){ return x.id===id; });
+      titleEl.textContent = 'Edit design';
+      document.getElementById('fName').value = d.name;
+      document.getElementById('fCategory').value = d.category;
+      document.getElementById('fPrice').value = d.price;
+      document.getElementById('fDesc').value = d.desc||'';
+      pendingImg = d.img||'';
+      var pv = document.getElementById('uploadPreview');
+      if(pendingImg){ pv.src=pendingImg; pv.style.display='block'; } else { pv.style.display='none'; }
+    } else {
+      titleEl.textContent = 'New design';
+      document.getElementById('fName').value='';
+      document.getElementById('fCategory').value='Flex';
+      document.getElementById('fPrice').value='';
+      document.getElementById('fDesc').value='';
+      document.getElementById('uploadPreview').style.display='none';
+    }
+    formOverlay.classList.add('open');
+  }
+  function closeForm(){ formOverlay.classList.remove('open'); }
+
+  document.getElementById('uploadZone').addEventListener('click', function(){
+    document.getElementById('fileInput').click();
+  });
+  document.getElementById('fileInput').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      pendingImg = ev.target.result;
+      var pv = document.getElementById('uploadPreview');
+      pv.src = pendingImg;
+      pv.style.display='block';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('btnSaveDesign').addEventListener('click', function(){
+    var name = document.getElementById('fName').value.trim();
+    var category = document.getElementById('fCategory').value;
+    var price = parseFloat(document.getElementById('fPrice').value)||0;
+    var desc = document.getElementById('fDesc').value.trim();
+    if(!name){ toast('Enter a design name'); return; }
+    if(editingId){
+      var d = state.designs.find(function(x){ return x.id===editingId; });
+      d.name=name; d.category=category; d.price=price; d.desc=desc; d.img=pendingImg;
+      toast('Design updated');
+    } else {
+      state.designs.unshift({id:uid(), name:name, category:category, price:price, desc:desc, img:pendingImg});
+      toast('Design added');
+    }
+    save(); closeForm(); renderGallery();
+  });
+
+  // ---------- detail: view design + reviews + discussion ----------
+  var detailOverlay = document.getElementById('detailOverlay');
+  var currentDetailId = null;
+  document.getElementById('detailClose').addEventListener('click', function(){ detailOverlay.classList.remove('open'); });
+  detailOverlay.addEventListener('click', function(e){ if(e.target===detailOverlay) detailOverlay.classList.remove('open'); });
+
+  function openDetail(id){
+    currentDetailId = id;
+    var d = state.designs.find(function(x){ return x.id===id; });
+    if(!d) return;
+    document.getElementById('detailTitle').textContent = d.name;
+    var reviews = state.reviews.filter(function(r){ return r.designId===id; }).sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+
+    var imgHtml = d.img ? '<img src="'+d.img+'" style="width:100%; border-radius:10px; max-height:220px; object-fit:cover; margin-bottom:14px;">' : '';
+
+    document.getElementById('detailBody').innerHTML =
+      imgHtml +
+      '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">'+
+        '<span class="price" style="font-size:19px;">'+fmt(d.price)+'</span>'+
+        '<button class="btn btn-primary btn-sm" id="detailAddCart">Add to cart</button>'+
+      '</div>'+
+      '<p style="font-size:13.5px; color:var(--muted); margin-bottom:18px;">'+esc(d.desc||'No description provided.')+'</p>'+
+      '<h3 style="font-size:15px; margin-bottom:10px;">Customer reviews &amp; order discussion</h3>'+
+      '<div style="max-height:220px; overflow-y:auto; margin-bottom:14px;" id="reviewList">'+
+        (reviews.length ? reviews.map(reviewRow).join('') : '<p style="font-size:13px; color:var(--muted);">No reviews yet. Be the first to leave feedback.</p>')+
+      '</div>'+
+      '<div class="field"><label>Add a review or order note</label><textarea id="newReviewText" placeholder="Share feedback, or discuss order details (size, deadline, changes)..."></textarea></div>'+
+      '<div class="field-row">'+
+        '<div class="field"><label>Your name</label><input type="text" id="newReviewName" placeholder="Your name"></div>'+
+        '<div class="field"><label>Rating</label><select id="newReviewRating"><option value="5">★★★★★ Excellent</option><option value="4">★★★★☆ Good</option><option value="3">★★★☆☆ Okay</option><option value="2">★★☆☆☆ Poor</option><option value="1">★☆☆☆☆ Bad</option></select></div>'+
+      '</div>'+
+      '<button class="btn btn-block" id="btnPostReview">Post</button>';
+
+    document.getElementById('detailAddCart').addEventListener('click', function(){ addToCart(id); });
+    document.getElementById('btnPostReview').addEventListener('click', postReview);
+
+    detailOverlay.classList.add('open');
+  }
+
+  function reviewRow(r){
+    var initials = (r.name||'?').trim().split(/\s+/).map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+    return '<div class="rv-item">'+
+      '<div style="display:flex; gap:10px;">'+
+        '<div class="avatar">'+esc(initials)+'</div>'+
+        '<div style="flex:1;">'+
+          '<div class="rv-top"><span class="rv-name">'+esc(r.name)+'</span><span class="rv-date">'+fmtDate(r.date)+'</span></div>'+
+          '<div class="rv-stars">'+starString(r.rating)+'</div>'+
+          '<div class="rv-text">'+esc(r.text)+'</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function postReview(){
+    var text = document.getElementById('newReviewText').value.trim();
+    var name = document.getElementById('newReviewName').value.trim() || 'Guest';
+    var rating = parseInt(document.getElementById('newReviewRating').value,10);
+    if(!text){ toast('Write something before posting'); return; }
+    state.reviews.unshift({id:uid(), designId:currentDetailId, name:name, rating:rating, text:text, date:new Date().toISOString()});
+    save();
+    openDetail(currentDetailId);
+    renderGallery();
+    toast('Posted');
+  }
+
+  // ================= CART =================
+  function addToCart(designId){
+    var existing = state.cart.find(function(c){ return c.designId===designId; });
+    if(existing){ existing.qty += 1; }
+    else { state.cart.push({designId:designId, qty:1}); }
+    save(); updateCartBadge();
+    toast('Added to cart');
+  }
+  function updateCartBadge(){
+    var count = state.cart.reduce(function(a,c){ return a+c.qty; },0);
+    var badge = document.getElementById('cartBadge');
+    if(count>0){ badge.style.display='flex'; badge.textContent=count; } else { badge.style.display='none'; }
+  }
+
+  function cartTotal(){
+    return state.cart.reduce(function(sum,c){
+      var d = state.designs.find(function(x){ return x.id===c.designId; });
+      return sum + (d ? d.price*c.qty : 0);
+    },0);
+  }
+
+  function renderCart(){
+    var wrap = document.getElementById('cartList');
+    var sub = document.getElementById('cartSub');
+    if(state.cart.length===0){
+      wrap.innerHTML = '<div class="empty-state">'+
+        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 002 1.6h9.7a2 2 0 002-1.6L23 6H6"/></svg>'+
+        '<h3>Your cart is empty</h3><p>Browse the catalogue and add a design to get started.</p></div>';
+      sub.textContent = 'Nothing added yet.';
+      return;
+    }
+    sub.textContent = state.cart.length + ' item(s) in cart';
+
+    var rows = state.cart.map(function(c){
+      var d = state.designs.find(function(x){ return x.id===c.designId; });
+      if(!d) return '';
+      var thumb = d.img ? '<img src="'+d.img+'">' : '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+      return '<div class="cart-row">'+
+        '<div class="cart-thumb">'+thumb+'</div>'+
+        '<div class="cart-info"><div class="t">'+esc(d.name)+'</div><div class="c">'+esc(d.category)+' · '+fmt(d.price)+' each</div></div>'+
+        '<div class="qty-ctrl">'+
+          '<button data-qty-dec="'+d.id+'">−</button><span>'+c.qty+'</span><button data-qty-inc="'+d.id+'">+</button>'+
+        '</div>'+
+        '<div style="width:80px; text-align:right; font-weight:700;">'+fmt(d.price*c.qty)+'</div>'+
+        '<button class="icon-btn" data-remove="'+d.id+'"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>'+
+      '</div>';
+    }).join('');
+
+    var total = cartTotal();
+    wrap.innerHTML = rows + '<div class="summary-card" style="margin-top:18px;">'+
+      '<div class="summary-row"><span>Subtotal</span><span>'+fmt(total)+'</span></div>'+
+      '<div class="summary-row"><span>Design/printing charges</span><span>Included</span></div>'+
+      '<div class="summary-row total"><span>Total</span><span>'+fmt(total)+'</span></div>'+
+      '<button class="btn btn-primary btn-block" style="margin-top:14px;" id="btnGoCheckout">Proceed to checkout</button>'+
+    '</div>';
+
+    wrap.querySelectorAll('[data-qty-inc]').forEach(function(el){
+      el.addEventListener('click', function(){ changeQty(el.getAttribute('data-qty-inc'), 1); });
+    });
+    wrap.querySelectorAll('[data-qty-dec]').forEach(function(el){
+      el.addEventListener('click', function(){ changeQty(el.getAttribute('data-qty-dec'), -1); });
+    });
+    wrap.querySelectorAll('[data-remove]').forEach(function(el){
+      el.addEventListener('click', function(){ removeFromCart(el.getAttribute('data-remove')); });
+    });
+    var goBtn = document.getElementById('btnGoCheckout');
+    if(goBtn) goBtn.addEventListener('click', function(){ showView('payment'); });
+  }
+
+  function changeQty(designId, delta){
+    var c = state.cart.find(function(x){ return x.designId===designId; });
+    if(!c) return;
+    c.qty += delta;
+    if(c.qty<=0){ state.cart = state.cart.filter(function(x){ return x.designId!==designId; }); }
+    save(); renderCart(); updateCartBadge();
+  }
+  function removeFromCart(designId){
+    state.cart = state.cart.filter(function(x){ return x.designId!==designId; });
+    save(); renderCart(); updateCartBadge();
+    toast('Removed from cart');
+  }
+
+  document.getElementById('btnClearCart').addEventListener('click', function(){
+    if(state.cart.length===0){ toast('Cart is already empty'); return; }
+    if(!confirm('Clear all items from the cart?')) return;
+    state.cart = [];
+    save(); renderCart(); updateCartBadge();
+    toast('Cart cleared');
+  });
+
+  // ================= PAYMENT =================
+  var selectedPayMethod = 'upi';
+  var lastOrder = null;
+
+  function qrSvg(payloadText){
+    // simple visual QR-style placeholder pattern (deterministic pseudo-QR look)
+    var size = 21, cell = 8;
+    var seedNum = 0;
+    for(var i=0;i<payloadText.length;i++){ seedNum = (seedNum*31 + payloadText.charCodeAt(i))>>>0; }
+    function rnd(){ seedNum = (seedNum*1103515245+12345)>>>0; return (seedNum>>>8)%100; }
+    var rects='';
+    for(var y=0;y<size;y++){
+      for(var x=0;x<size;x++){
+        var isFinder = (x<7&&y<7)||(x>size-8&&y<7)||(x<7&&y>size-8);
+        var on = isFinder ? finderPattern(x,y,size) : (rnd()<46);
+        if(on){ rects += '<rect x="'+(x*cell)+'" y="'+(y*cell)+'" width="'+cell+'" height="'+cell+'" fill="#211f1a"/>'; }
+      }
+    }
+    return '<svg viewBox="0 0 '+(size*cell)+' '+(size*cell)+'" xmlns="http://www.w3.org/2000/svg" style="background:#fff">'+rects+'</svg>';
+  }
+  function finderPattern(x,y,size){
+    function local(ox,oy){
+      var lx=x-ox, ly=y-oy;
+      if(lx<0||ly<0||lx>6||ly>6) return false;
+      if(lx===0||lx===6||ly===0||ly===6) return true;
+      if(lx>=2&&lx<=4&&ly>=2&&ly<=4) return true;
+      return false;
+    }
+    return local(0,0) || local(size-7,0) || local(0,size-7);
+  }
+
+  function renderPayment(){
+    var total = cartTotal();
+    var content = document.getElementById('paymentContent');
+    if(state.cart.length===0){
+      content.innerHTML = '<div class="empty-state">'+
+        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 002 1.6h9.7a2 2 0 002-1.6L23 6H6"/></svg>'+
+        '<h3>Nothing to check out</h3><p>Add designs to your cart first.</p></div>';
+      return;
+    }
+    var payload = 'upi://pay?pa=studioframe@upi&pn=StudioFrame&am='+total+'&cu=INR';
+    content.innerHTML = '<div class="pay-grid">'+
+      '<div>'+
+        '<div class="field"><label>Customer name</label><input type="text" id="cName" placeholder="Full name" value="'+esc(state.customer.name)+'"></div>'+
+        '<div class="field-row">'+
+          '<div class="field"><label>Phone</label><input type="text" id="cPhone" placeholder="10-digit number" value="'+esc(state.customer.phone)+'"></div>'+
+          '<div class="field"><label>Email (optional)</label><input type="email" id="cEmail" placeholder="name@email.com" value="'+esc(state.customer.email)+'"></div>'+
+        '</div>'+
+        '<div class="field"><label>Order discussion / notes</label><textarea id="cNotes" placeholder="Frame size, delivery date, special instructions...">'+esc(state.customer.notes)+'</textarea></div>'+
+        '<div class="field"><label>Payment method</label>'+
+          '<label class="pay-method'+(selectedPayMethod==='upi'?' selected':'')+'" data-method="upi"><input type="radio" name="pm" '+(selectedPayMethod==='upi'?'checked':'')+'> UPI / QR code</label>'+
+          '<label class="pay-method'+(selectedPayMethod==='cash'?' selected':'')+'" data-method="cash"><input type="radio" name="pm" '+(selectedPayMethod==='cash'?'checked':'')+'> Cash on pickup</label>'+
+          '<label class="pay-method'+(selectedPayMethod==='card'?' selected':'')+'" data-method="card"><input type="radio" name="pm" '+(selectedPayMethod==='card'?'checked':'')+'> Card</label>'+
+        '</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="qr-box">'+
+          '<div class="qr-code">'+qrSvg(payload)+'</div>'+
+          '<div style="font-weight:700; font-size:15px;">Scan to pay '+fmt(total)+'</div>'+
+          '<div style="font-size:12px; color:var(--muted); margin-top:2px;">UPI ID: studioframe@upi</div>'+
+        '</div>'+
+        '<div class="summary-card" style="margin-top:14px;">'+
+          '<div class="summary-row"><span>Items</span><span>'+state.cart.length+'</span></div>'+
+          '<div class="summary-row total"><span>Amount due</span><span>'+fmt(total)+'</span></div>'+
+          '<button class="btn btn-primary btn-block" style="margin-top:14px;" id="btnPayNow">Pay now &amp; generate bill</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<div id="billArea" style="margin-top:26px;"></div>';
+
+    content.querySelectorAll('.pay-method').forEach(function(el){
+      el.addEventListener('click', function(){
+        selectedPayMethod = el.getAttribute('data-method');
+        renderPayment();
+      });
+    });
+    document.getElementById('btnPayNow').addEventListener('click', payNow);
+  }
+
+  function payNow(){
+    var name = document.getElementById('cName').value.trim();
+    var phone = document.getElementById('cPhone').value.trim();
+    var email = document.getElementById('cEmail').value.trim();
+    var notes = document.getElementById('cNotes').value.trim();
+    if(!name || !phone){ toast('Enter customer name and phone'); return; }
+
+    state.customer = {name:name, phone:phone, email:email, notes:notes};
+
+    var items = state.cart.map(function(c){
+      var d = state.designs.find(function(x){ return x.id===c.designId; });
+      return {designId:c.designId, name:d?d.name:'Design', category:d?d.category:'', price:d?d.price:0, qty:c.qty};
+    });
+    var total = items.reduce(function(s,i){ return s+i.price*i.qty; },0);
+
+    var order = {
+      id: 'ORD-' + Date.now().toString().slice(-6),
+      date: new Date().toISOString(),
+      customer: state.customer,
+      items: items,
+      total: total,
+      method: selectedPayMethod,
+      status: 'Paid'
+    };
+    state.orders.unshift(order);
+    lastOrder = order;
+    state.cart = [];
+    save();
+    updateCartBadge();
+    renderBill(order);
+    toast('Payment received. Bill generated.');
+  }
+
+  function renderBill(order){
+    var area = document.getElementById('billArea');
+    var rows = order.items.map(function(i){
+      return '<tr><td>'+esc(i.name)+'<br><span style="color:var(--muted)">'+esc(i.category)+'</span></td><td>'+i.qty+'</td><td>'+fmt(i.price)+'</td><td>'+fmt(i.price*i.qty)+'</td></tr>';
+    }).join('');
+    area.innerHTML = '<div class="bill" id="printableBill">'+
+      '<h2>Studio Frame</h2>'+
+      '<p class="center" style="color:var(--muted); margin:0 0 10px;">Print &amp; frame studio · GST: N/A</p>'+
+      '<div class="divider"></div>'+
+      '<div class="bill-row"><span>Bill no.</span><span>'+order.id+'</span></div>'+
+      '<div class="bill-row"><span>Date</span><span>'+fmtDate(order.date)+'</span></div>'+
+      '<div class="bill-row"><span>Customer</span><span>'+esc(order.customer.name)+'</span></div>'+
+      '<div class="bill-row"><span>Phone</span><span>'+esc(order.customer.phone)+'</span></div>'+
+      (order.customer.notes ? '<div class="bill-row"><span>Notes</span><span style="max-width:60%; text-align:right;">'+esc(order.customer.notes)+'</span></div>' : '')+
+      '<div class="divider"></div>'+
+      '<table><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Amt</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+      '<div class="divider"></div>'+
+      '<div class="bill-row" style="font-weight:700; font-size:14px;"><span>Total paid</span><span>'+fmt(order.total)+'</span></div>'+
+      '<div class="bill-row"><span>Payment method</span><span>'+esc(order.method.toUpperCase())+'</span></div>'+
+      '<div class="divider"></div>'+
+      '<p class="center" style="margin-top:10px; color:var(--muted);">Thank you for your order!</p>'+
+    '</div>'+
+    '<div style="display:flex; gap:10px; max-width:480px; margin:16px auto 0;">'+
+      '<button class="btn btn-block" id="btnPrintBill"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg> Print bill</button>'+
+      '<button class="btn btn-primary btn-block" id="btnNewOrder">Start new order</button>'+
+    '</div>';
+
+    document.getElementById('btnPrintBill').addEventListener('click', function(){ window.print(); });
+    document.getElementById('btnNewOrder').addEventListener('click', function(){
+      document.getElementById('cName').value='';
+      document.getElementById('cPhone').value='';
+      document.getElementById('cNotes').value='';
+      showView('gallery');
+    });
+  }
+
+  // ================= DASHBOARD =================
+  function isToday(iso){
+    var d = new Date(iso), t = new Date();
+    return d.getFullYear()===t.getFullYear() && d.getMonth()===t.getMonth() && d.getDate()===t.getDate();
+  }
+
+  function renderDashboard(){
+    var todaysOrders = state.orders.filter(function(o){ return isToday(o.date); });
+    var todaysRevenue = todaysOrders.reduce(function(s,o){ return s+o.total; },0);
+    var totalRevenue = state.orders.reduce(function(s,o){ return s+o.total; },0);
+    var avgRatingAll = (function(){
+      if(state.reviews.length===0) return '—';
+      var sum = state.reviews.reduce(function(a,r){ return a+r.rating; },0);
+      return (sum/state.reviews.length).toFixed(1);
+    })();
+
+    document.getElementById('statGrid').innerHTML =
+      stat('Orders today', todaysOrders.length, '') +
+      stat('Revenue today', fmt(todaysRevenue), 'rust') +
+      stat('Total orders', state.orders.length, '') +
+      stat('Lifetime revenue', fmt(totalRevenue), 'moss') +
+      stat('Designs listed', state.designs.length, '') +
+      stat('Avg. review rating', avgRatingAll+' / 5', '');
+
+    var tbl = document.getElementById('ordersTable');
+    if(state.orders.length===0){
+      tbl.innerHTML = '<tr><td style="padding:30px; text-align:center; color:var(--muted);">No orders placed yet.</td></tr>';
+    } else {
+      tbl.innerHTML = '<thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody>'+
+        state.orders.slice(0,25).map(function(o){
+          return '<tr><td>'+o.id+'</td><td>'+esc(o.customer.name)+'<br><span style="color:var(--muted); font-size:12px;">'+esc(o.customer.phone)+'</span></td>'+
+            '<td>'+o.items.reduce(function(s,i){return s+i.qty;},0)+' item(s)</td>'+
+            '<td>'+fmt(o.total)+'</td><td>'+esc(o.method.toUpperCase())+'</td>'+
+            '<td><span class="status-pill paid">'+o.status+'</span></td>'+
+            '<td>'+fmtDate(o.date)+'</td></tr>';
+        }).join('') + '</tbody>';
+    }
+
+    var revWrap = document.getElementById('allReviewsList');
+    var recentReviews = state.reviews.slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); }).slice(0,10);
+    if(recentReviews.length===0){
+      revWrap.innerHTML = '<p style="padding:20px 0; text-align:center; color:var(--muted);">No reviews yet.</p>';
+    } else {
+      revWrap.innerHTML = recentReviews.map(function(r){
+        var d = state.designs.find(function(x){ return x.id===r.designId; });
+        return '<div class="rv-item"><div class="rv-top"><span class="rv-name">'+esc(r.name)+' <span style="color:var(--muted); font-weight:400;">on '+esc(d?d.name:'a design')+'</span></span><span class="rv-date">'+fmtDate(r.date)+'</span></div><div class="rv-stars">'+starString(r.rating)+'</div><div class="rv-text">'+esc(r.text)+'</div></div>';
+      }).join('');
+    }
+  }
+  function stat(k,v,cls){
+    return '<div class="stat-card"><div class="k">'+k+'</div><div class="v'+(cls?' '+cls:'')+'">'+v+'</div></div>';
+  }
+
+  document.getElementById('btnResetData').addEventListener('click', function(){
+    if(!confirm('Reset all designs, orders, cart and reviews to sample demo data?')) return;
+    seed();
+    renderChips(); renderGallery(); updateCartBadge(); renderDashboard();
+    toast('Demo data reset');
+  });
+
+  // ---------- init ----------
+  renderChips();
+  renderGallery();
+  updateCartBadge();
+})();
+</script>
+</body>
+</html>
